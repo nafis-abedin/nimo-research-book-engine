@@ -1,0 +1,40 @@
+﻿# NIMO 4.0 local-first runtime
+# Keep private runtime state and user data out of public Git repositories.
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local runtime state
+nimo_memory.db
+nimo_memory.db-*
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+
+# Private user data and generated output
+vault/
+exports/
+jobs/
+logs/
+backups/
+db_backups/
+*.log
+*.manifest.json
+
+# Secrets / machine-specific configuration
+.nimo_sqlcipher_key.dpapi
+nimo_config.json
+.env
+.env.*
+
+# Test artifacts
+.pytest_cache/
+tests/db_backups/
+tests/fixtures/generated/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

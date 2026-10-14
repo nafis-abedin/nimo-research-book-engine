@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-10-14T15:42:42.7152392Z",
+  "security": {
+    "tracked_file_count": 28,
+    "strong_secret_pattern_hits": 0,
+    "git_history_secret_pattern_hits": 0,
+    "forbidden_tracked_paths": [],
+    "personal_path_matches": [],
+    "decision": "PASS_WITH_MANUAL_REVIEW"
+  },
+  "evaluation": [
+    {
+      "id": "office-holder-current-001",
+      "observed_status": "VERIFIED",
+      "confidence": "HIGH",
+      "passed": true,
+      "expected_behavior": "verified with primary plus independent publisher",
+      "notes": [
+        "official/primary source plus independent publisher group"
+      ]
+    },
+    {
+      "id": "election-change-001",
+      "observed_status": "CONTESTED",
+      "confidence": "LOW",
+      "passed": true,
+      "expected_behavior": "contested; conflict must remain visible",
+      "notes": [
+        "conflict-or-correction signal retained; human review required"
+      ]
+    },
+    {
+      "id": "price-current-001",
+      "observed_status": "SINGLE-SOURCE",
+      "confidence": "LOW",
+      "passed": true,
+      "expected_behavior": "single-source; do not present as official current price",
+      "notes": [
+        "current/high-impact claim lacks independent corroboration"
+      ]
+    },
+    {
+      "id": "law-status-001",
+      "observed_status": "SINGLE-SOURCE",
+      "confidence": "LOW",
+      "passed": true,
+      "expected_behavior": "single-source; abstain when effective status is incomplete",
+      "notes": [
+        "current/high-impact claim lacks independent corroboration"
+      ]
+    },
+    {
+      "id": "health-safety-001",
+      "observed_status": "VERIFIED",
+      "confidence": "HIGH",
+      "passed": true,
+      "expected_behavior": "verified only with limitations retained",
+      "notes": [
+        "official/primary source plus independent publisher group"
+      ]
+    },
+    {
+      "id": "finance-value-001",
+      "observed_status": "SINGLE-SOURCE",
+      "confidence": "LOW",
+      "passed": true,
+      "expected_behavior": "single-source; never call undated value current",
+      "notes": [
+        "current/high-impact claim lacks independent corroboration"
+      ]
+    },
+    {
+      "id": "misleading-snippet-001",
+      "observed_status": "SINGLE-SOURCE",
+      "confidence": "LOW",
+      "passed": true,
+      "expected_behavior": "untrusted instruction text must not become evidence",
+      "notes": [
+        "only one retained supporting source"
+      ]
+    }
+  ],
+  "evaluation_pass_count": 7,
+  "evaluation_case_count": 7
+}
