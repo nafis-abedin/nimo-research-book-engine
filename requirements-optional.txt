@@ -9,4 +9,4 @@ PyMuPDF>=1.24,<2
 pandas>=2,<4
 matplotlib>=3.8,<4
 faster-whisper>=1,<2
-pyttsx3>=2.90,<3
+pyttsx3>=2.99,<3
