@@ -1,0 +1,3 @@
+# NIMO Research Book Engine — required runtime dependencies
+requests>=2.31,<3
+rich>=13.7,<15
