@@ -1,0 +1,88 @@
+name: Project Nimo quality checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install required runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+      - name: Compile authoritative runtime
+        run: python -m py_compile NIMO_TERMINAL_MASTER_4_0.py
+      - name: Run factuality and release safety tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+      - name: Check release boundary and secret patterns
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, sys
+          root = Path('.')
+          forbidden_dirs = {'source', 'node_modules', 'vendor', 'backups', 'vault', 'logs', 'exports', 'jobs', 'research', 'plugins', 'models'}
+          forbidden_ext = {'.db', '.sqlite', '.sqlite3', '.log', '.env', '.dpapi', '.pem', '.key', '.exe', '.dll', '.pyd', '.msi', '.scr', '.com', '.sys', '.gguf', '.safetensors', '.so', '.dylib', '.bin'}
+          secret_markers = ['gh' + 'p_', 'github' + '_pat_', 'AKIA' + '[0-9A-Z]{16}', 'BEGIN ' + '[A-Z ]*PRIVATE KEY']
+          secret_re = re.compile('(' + '|'.join(secret_markers) + ')', re.I)
+          errors = []
+          for p in root.rglob('*'):
+              if not p.is_file() or '.git' in p.parts:
+                  continue
+              rel = p.relative_to(root)
+              if any(part.lower() in forbidden_dirs for part in rel.parts):
+                  errors.append(f'forbidden directory: {rel}')
+              if p.suffix.lower() in forbidden_ext:
+                  errors.append(f'forbidden extension: {rel}')
+              if p.suffix.lower() in {'.py', '.cmd', '.md', '.txt', '.json', '.yml', '.yaml'}:
+                  text = p.read_text(encoding='utf-8', errors='ignore')
+                  if secret_re.search(text):
+                      errors.append(f'secret pattern: {rel}')
+          if errors:
+              print('\n'.join(errors))
+              sys.exit(1)
+          print('Release boundary and secret-pattern scan passed')
+          PY
+      - name: Verify canonical SHA-256 manifest coverage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, subprocess, sys
+          root = Path('.')
+          manifest = root / 'release-manifest.sha256'
+          expected = {}
+          for line in manifest.read_text(encoding='ascii').splitlines():
+              if line.strip():
+                  digest, path = line.split('  ', 1)
+                  expected[path] = digest
+          tracked = set(subprocess.check_output(['git', 'ls-files'], text=True).splitlines()) - {'release-manifest.sha256'}
+          if set(expected) != tracked:
+              print('Manifest coverage mismatch')
+              print('Missing:', sorted(tracked - set(expected)))
+              print('Unexpected:', sorted(set(expected) - tracked))
+              sys.exit(1)
+          for path, digest in expected.items():
+              data = (root / path).read_bytes()
+              if b'\x00' not in data:
+                  data = data.replace(b'\r\n', b'\n')
+              actual = hashlib.sha256(data).hexdigest()
+              if actual != digest:
+                  print(f'Hash mismatch: {path}')
+                  sys.exit(1)
+          print(f'Manifest verified: {len(expected)} files')
+          PY
+
+

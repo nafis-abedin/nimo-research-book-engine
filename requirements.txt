@@ -1,0 +1,5 @@
+# Project Nimo — required runtime dependencies
+requests>=2.31,<3
+rich>=13.7,<15
+ddgs>=9.0,<10
+beautifulsoup4>=4.12,<5
