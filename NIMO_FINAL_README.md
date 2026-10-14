@@ -17,3 +17,11 @@ Use `/research deep <topic>` for evidence-oriented research and `/book <topic>` 
 ## Access
 
 Keep personal vaults, databases, logs, backups, exports, and model files outside the repository. Never publish `%LOCALAPPDATA%\\NIMO`.
+
+## Search provider and factuality policy
+
+DuckDuckGo is the default no-key search fallback. For users who have a Brave Search API key, set `NIMO_BRAVE_API_KEY` in the local environment; never put it in the repository or a committed config file. NIMO records the provider used for each search and falls back safely if Brave is unavailable.
+
+Search results are leads, not facts. NIMO requires source extraction, dates, source tiers, entity matching, independent corroboration, conflict reporting, and visible abstention for unresolved current claims. Read [Research Reliability](docs/RESEARCH_RELIABILITY.md) before using NIMO for a book or current-affairs research.
+
+See [ROADMAP](ROADMAP.md) for the development gates before public release.

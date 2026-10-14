@@ -69,3 +69,11 @@ Internet retrieval is opt-in. External lab commands are disabled by default and 
 ## Release status
 
 This repository is a **private staging release candidate**. The clean package has passed fresh-clone checkout, Python AST validation, NIMO Doctor validation, forbidden-artifact scanning, and SHA-256 manifest generation. Public release should happen only after a fresh-machine installation test with a clean Windows user profile and a selected Ollama model.
+
+## Search provider and factuality policy
+
+DuckDuckGo is the default no-key search fallback. For users who have a Brave Search API key, set `NIMO_BRAVE_API_KEY` in the local environment; never put it in the repository or a committed config file. NIMO records the provider used for each search and falls back safely if Brave is unavailable.
+
+Search results are leads, not facts. NIMO requires source extraction, dates, source tiers, entity matching, independent corroboration, conflict reporting, and visible abstention for unresolved current claims. Read [Research Reliability](docs/RESEARCH_RELIABILITY.md) before using NIMO for a book or current-affairs research.
+
+See [ROADMAP](ROADMAP.md) for the development gates before public release.

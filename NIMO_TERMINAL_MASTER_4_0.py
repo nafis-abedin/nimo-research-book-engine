@@ -4812,15 +4812,45 @@ class SearchProvider:
 
     def __init__(self, max_chars: int = 18000, timeout: int = 25):
         self.max_chars, self.timeout = max_chars, timeout
-        self.available = HAS_DDGS
+        # DuckDuckGo remains the no-key default. Brave is opt-in through an
+        # environment variable so users can choose a provider without placing
+        # credentials in the repository or in NIMO runtime files.
+        self.brave_api_key = os.environ.get("NIMO_BRAVE_API_KEY", "").strip()
+        self.available = bool(HAS_DDGS or self.brave_api_key)
         self.last_error = ""
         self.last_query = ""
+        self.last_provider = ""
+
+    def _search_brave(self, query: str, limit: int = 8) -> list[dict[str, str]]:
+        response = requests.get("https://api.search.brave.com/res/v1/web/search", params={"q": str(query), "count": max(1, min(int(limit), 20)), "extra_snippets": "true"}, headers={"Accept": "application/json", "X-Subscription-Token": self.brave_api_key}, timeout=self.timeout)
+        response.raise_for_status()
+        rows: list[dict[str, str]] = []
+        for rank, item in enumerate((response.json().get("web") or {}).get("results") or [], 1):
+            url = str(item.get("url") or "").strip()
+            if not url:
+                continue
+            snippet = str(item.get("description") or "")
+            extras = item.get("extra_snippets") or []
+            if extras:
+                snippet = " ".join([snippet] + [str(value) for value in extras[:5]])
+            rows.append({"title": str(item.get("title") or ""), "url": url, "snippet": snippet, "published_at": publication_date_from_value(item.get("page_age") or item.get("published")) or "", "search_provider": "Brave Search", "search_rank": str(rank)})
+        self.last_provider = "Brave Search"
+        return rows
 
     def search(self, query: str, limit: int = 8) -> list[dict[str, str]]:
         self.last_query = str(query or "")
         self.last_error = ""
-        if not self.available:
-            self.last_error = "DuckDuckGo provider package is unavailable"
+        if self.brave_api_key:
+            try:
+                brave_rows = self._search_brave(query, limit=limit)
+                if brave_rows:
+                    return brave_rows
+            except Exception as exc:
+                # Never expose the credential; fall back to the no-key provider.
+                self.last_error = f"BraveSearchError: {type(exc).__name__}: {str(exc)[:180]}"
+        if not HAS_DDGS:
+            if not self.brave_api_key:
+                self.last_error = "No search provider is configured; install duckduckgo-search or set NIMO_BRAVE_API_KEY"
             return []
         result_box: dict[str, Any] = {"rows": [], "error": ""}
 
@@ -4861,6 +4891,7 @@ class SearchProvider:
         if result_box.get("error"):
             self.last_error = str(result_box["error"])
             return []
+        self.last_provider = "DuckDuckGo"
         return list(result_box.get("rows") or [])
 
     @staticmethod
