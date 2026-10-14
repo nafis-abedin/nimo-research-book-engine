@@ -71,9 +71,10 @@ jobs:
               print('Unexpected:', sorted(set(expected) - tracked))
               sys.exit(1)
           for path, digest in expected.items():
-              actual = hashlib.sha256((root / path).read_bytes()).hexdigest()
+              data = (root / path).read_bytes()\n              if (root / path).suffix.lower() in {'.py', '.cmd', '.bat', '.ps1', '.md', '.json', '.yml', '.yaml', '.txt', '.sha256'}:\n                  data = data.replace(b'\\r\\n', b'\\n')\n              actual = hashlib.sha256(data).hexdigest()
               if actual != digest:
                   print(f'Hash mismatch: {path}')
                   sys.exit(1)
           print(f'Manifest verified: {len(expected)} files')
           PY
+

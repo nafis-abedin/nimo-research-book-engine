@@ -48,3 +48,6 @@ The release tree is clean and passes local static/runtime gates. Public GitHub p
 ## Next release gate
 
 Create a private GitHub staging repository, clone it into a new empty folder, run the installer and doctor, test one Ollama chat, test one research artifact, and only then consider public visibility.
+# release-manifest.sha256 stores canonical content hashes.
+# Text files are normalized from CRLF to LF before hashing so verification is
+# identical on Windows and Linux; binary files are hashed byte-for-byte.
